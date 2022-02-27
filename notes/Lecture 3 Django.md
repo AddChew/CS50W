@@ -25,7 +25,7 @@ python manage.py startapp <app name>
 
 ## Routes
 
-### Code snippet on how to associate function with app url
+### Link views function to app url
 
 1. Create a urls.py file in our app directory; same level as views.py
 
@@ -100,6 +100,8 @@ def greet(request, name):
 ```
 
 ```html
+<!-- hello/index.html in templates directory -->
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -112,3 +114,23 @@ def greet(request, name):
 ```
 
 ### Conditionals
+
+- ```{%``` and ```%}``` are used as opening and closing tags around logical statements in django templating language.
+
+```html
+<!-- Code snippet on the use of if else in django templating language-->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Is it New Year's?</title>
+    </head>
+    <body>
+        {% if newyear %}
+            <h1>YES</h1>
+        {% else %}
+            <h1>NO</h1>
+        {% endif %}
+    </body>
+</html>
+```
