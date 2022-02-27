@@ -19,5 +19,4 @@ python manage.py runserver
 ```
 python manage.py startapp <app name>
 ```
-
-Navigate to settings.py and add <app name> to INSTALLED_APPS to install the app.
+- Navigate to settings.py and add \<app name> to INSTALLED_APPS to install the app.
