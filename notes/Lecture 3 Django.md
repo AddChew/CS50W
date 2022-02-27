@@ -86,9 +86,9 @@ def index(request):
     return render(request, "hello/index.html") # render(request, "<app name>/<html template file>")
 ```
 
-### Django Templating Language
+### Variables
 
-- Context (third argument in render) allows you to pass information to your HTML template files
+- Context (third argument in render) allows you to pass information (variables) to your HTML template files
 
 ```python
 # views.py in app directory
@@ -158,6 +158,75 @@ def greet(request, name):
 </html>
 ```
 
+### Template Inheritance
+
+- Allows you to minimize code repetition in the context of HTML files; i.e. adhere to DRY (Don't Repeat Yourself) principle
+
+```html
+<!-- layout.html, which contains the general structure of the web page -->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Tasks</title>
+    </head>
+    <body>
+        {% block body %}
+        {% endblock %}
+    </body>
+</html>
+```
+
+```html
+<!-- index.html, template file which inherits the general structure from layout.html -->
+
+{% extends "tasks/layout.html" %} <!-- Inherit general structure from tasks/layout.html -->
+
+{% block body %}
+    <h1>Tasks:</h1>
+    <ul>
+        {% for task in tasks %}
+            <li>{{ task }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+```
+
+### URLs
+
+```html
+<!-- Sample code snippets of url links in HTML -->
+<!-- {% url '<url name>' %} -->
+
+<a href="{% url 'add' %}">Add a New Task</a>
+<a href="{% url 'index' %}">View Tasks</a>
+```
+
+- Problem arises when there are multiple urls with the same name in different apps. This can be resolved by adding an app_name variable into each of our app's ```urls.py``` file
+
+```python
+# urls.py in app directory
+
+from django.urls import path
+from . import views
+
+app_name = "tasks" # Add app_name variable into each of our app's urls.py file
+urlpatterns = [
+    path("", views.index, name="index"),
+    path("add", views.add, name="add")
+]
+```
+
+- Change links from simply ```index``` and ```add``` to ```tasks:index``` and ```tasks:add```
+
+```html
+<!-- Sample code snippets of updated url links in HTML -->
+<!-- {% url '<app name>:<url name>' %} -->
+
+<a href="{% url 'tasks:add' %}">Add a New Task</a>
+<a href="{% url 'tasks:index' %}">View Tasks</a>
+```
+
 ### CSS
 
 1. Create a static folder in app directory
@@ -186,6 +255,22 @@ def greet(request, name):
 ```
 
 ## Forms
+
+### Cross-Site Request Forgery (CSRF) Attack
+
+- An attack where a malicious user attempts to send a request to your server from somewhere other than your site
+
+```html
+<!-- add.html -->
+
+<form action="{% url 'tasks:add' %}" method="post">
+    {% csrf_token %} <!-- Add CSRF token to form -->
+    <input type="text", name="task">
+    <input type="submit">
+</form>
+```
+
+### Django Forms
 
 
 ## Sessions
