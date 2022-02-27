@@ -89,6 +89,7 @@ def index(request):
 ### Django Templating Language
 
 - Context (third argument in render) allows you to pass information to your HTML template files
+
 ```python
 # views.py in app directory
 
@@ -115,10 +116,10 @@ def greet(request, name):
 
 ### Conditionals
 
-- ```{%``` and ```%}``` are used as opening and closing tags around logical statements in django templating language.
+- Have to include ```{%``` and ```%}``` as opening and closing tags around logical statements in django templating language.
 
 ```html
-<!-- Code snippet on the use of if else in django templating language-->
+<!-- Code snippet on the use of if else in django templating language -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -134,3 +135,57 @@ def greet(request, name):
     </body>
 </html>
 ```
+
+### Loops
+
+- Have to include ```{%``` and ```%}``` as opening and closing tags around logical statements in django templating language.
+
+```html
+<!-- Code snippet on the use of for loop in django templating language -->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Tasks</title>
+    </head>
+    <body>
+        <ul>
+            {% for task in tasks %}
+                <li>{{ task }}</li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>
+```
+
+### CSS
+
+1. Create a static folder in app directory
+2. Within the static folder, create a \<app name> folder
+3. Put styles.css file in \<app name> folder within static folder
+
+```html
+<!-- Code snippet on how to add CSS to HTML template-->
+
+{% load static %} <!-- Tell django that we wish to have access to the files in static folder -->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="{% static 'newyear/styles.css' %}"> <!-- Link HTML template to the styles.css file in static/newyear folder -->
+        <title>Is it New Year's?</title>
+    </head>
+    <body>
+        {% if newyear %}
+            <h1>YES</h1>
+        {% else %}
+            <h1>NO</h1>
+        {% endif %}
+    </body>
+</html>
+```
+
+## Forms
+
+
+## Sessions
