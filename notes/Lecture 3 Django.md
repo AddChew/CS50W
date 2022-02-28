@@ -23,6 +23,11 @@ python manage.py startapp <app name>
 ```
 - Navigate to settings.py and add \<app name> to INSTALLED_APPS to install the app
 
+### Command to migrate database
+```
+python manage.py migrate
+```
+
 ## Routes
 
 ### Link views function to app url
@@ -152,6 +157,8 @@ def greet(request, name):
         <ul>
             {% for task in tasks %}
                 <li>{{ task }}</li>
+            {% empty %}
+                <li>No tasks.</li> <!-- Account for the case where tasks is empty -->
             {% endfor %}
         </ul>
     </body>
@@ -385,7 +392,7 @@ def add(request):
     })
 ```
 
+- Terminal Command to allow us to store sessions
 ```
-# Terminal Command to allow us to store sessions
 python manage.py migrate
 ```
