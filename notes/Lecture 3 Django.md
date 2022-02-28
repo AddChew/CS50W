@@ -272,5 +272,69 @@ urlpatterns = [
 
 ### Django Forms
 
+```python
+# views.py in app directory
+
+from django import forms
+from django.urls import reverse
+from django.http import HttpResponseRedirect
+
+class NewTaskForm(forms.Form):
+    task = forms.CharField(label = "New Task")
+    priority = forms.IntegerField(label = "Priority", min_value = 1, max_value = 10)
+
+.
+.
+.
+
+# Add new task view
+def add(request):
+
+    # Check if method is POST
+    if request.method == "POST":
+
+        # Take in the data the user submitted and save it as form
+        form = NewTaskForm(request.POST)
+
+        # Check if form data is valid (server-side)
+        if form.is_valid():
+
+            # Isolate the task from the 'cleaned' version of form data
+            task = form.cleaned_data["task"]
+
+            # Add the new task to our list of tasks
+            tasks.append(task)
+
+            # Redirect user to list of tasks
+            return HttpResponseRedirect(reverse("tasks:index"))
+            # reverse("<app name>:<url name>")
+
+        else:
+
+            # If the form is invalid, re-render the page with existing information.
+            return render(request, "tasks/add.html", {
+                "form": form
+            })
+
+    return render(request, "tasks/add.html", {
+        "form": NewTaskForm()
+    })
+    # render(request, "<app name>/<html template file>", <context:Dict>)
+```
+
+```html
+<!-- add.html -->
+
+{% extends "tasks/layout.html" %}
+
+{% block body %}
+    <h1>Add Task:</h1>
+    <form action="{% url 'tasks:add' %}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit">
+    </form>
+{% endblock %}
+```
 
 ## Sessions
