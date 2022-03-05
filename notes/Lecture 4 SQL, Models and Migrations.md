@@ -334,3 +334,240 @@ f.save()
 ```
 
 ## Django Admin
+
+- Terminal command to create an admin account (superuser)
+
+```
+python manage.py createsuperuser
+```
+
+### Add models to admin application
+
+```python
+# admin.py in app directory
+
+from django.contrib import admin
+from .models import Flight, Airport
+
+# Register database models
+admin.site.register(Flight)
+admin.site.register(Airport)
+```
+
+### How to pass variables into URL
+
+```python
+# urls.py
+
+path("<int:flight_id>", views.flight, name="flight")
+```
+
+```html
+<!-- Sample code snippet on how to pass variables into URL -->
+<!-- "{% url 'url name' var}" -->
+
+{% extends "flights/layout.html" %}
+
+{% block body %}
+    <h1>Flights:</h1>
+    <ul>
+        {% for flight in flights %}
+            <li><a href="{% url 'flight' flight.id %}">Flight {{ flight.id }}</a>: {{ flight.origin }} to {{ flight.destination }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+```
+
+### Customise views in Django Admin page
+
+```python
+# admin.py in app directory
+
+from django.contrib import admin
+
+class FlightAdmin(admin.ModelAdmin):
+    list_display = ("id", "origin", "destination", "duration")
+
+# Register your models here.
+admin.site.register(Flight, FlightAdmin)
+```
+
+## Many-to-Many Relationships
+
+```python
+# models.py in app directory
+
+from django.db import models
+
+class Passenger(models.Model):
+    first = models.CharField(max_length=64)
+    last = models.CharField(max_length=64)
+    flights = models.ManyToManyField(Flight, blank=True, related_name="passengers")
+
+    def __str__(self):
+        return f"{self.first} {self.last}"
+```
+
+```python
+# views.py
+
+def flight(request, flight_id):
+    flight = Flight.objects.get(id=flight_id)
+    passengers = flight.passengers.all()
+    return render(request, "flights/flight.html", {
+        "flight": flight,
+        "passengers": passengers
+    })
+```
+
+```html
+<h2>Passengers:</h2>
+<ul>
+    {% for passenger in passengers %}
+        <li>{{ passenger }}</li>
+    {% empty %}
+        <li>No Passengers.</li>
+    {% endfor %}
+</ul>
+```
+
+```python
+# urls.py in app directory
+
+path("<int:flight_id>/book", views.book, name="book")
+```
+
+```python
+# views.py in app directory
+
+
+# view for passenger to book a flight
+def book(request, flight_id):
+
+    # For a post request, add a new flight
+    if request.method == "POST":
+
+        # Accessing the flight
+        flight = Flight.objects.get(pk=flight_id)
+
+        # Finding the passenger id from the submitted form data
+        passenger_id = int(request.POST["passenger"])
+
+        # Finding the passenger based on the id
+        passenger = Passenger.objects.get(pk=passenger_id)
+
+        # Add passenger to the flight
+        passenger.flights.add(flight) # How to add new associations
+
+        # Redirect user to flight page
+        return HttpResponseRedirect(reverse("flight", args=(flight.id,))) # How to pass variables into reverse URL
+
+
+# view for flight page
+def flight(request, flight_id):
+    flight = Flight.objects.get(id=flight_id)
+    passengers = flight.passengers.all()
+    non_passengers = Passenger.objects.exclude(flights=flight).all() # Use exclude command to exclude certain objects from a query
+    return render(request, "flights/flight.html", {
+        "flight": flight,
+        "passengers": passengers,
+        "non_passengers": non_passengers
+    })
+```
+
+```html
+<form action="{% url 'book' flight.id %}" method="post">
+    {% csrf_token %}
+    <select name="passenger" id="">
+        {% for passenger in non_passengers %}
+            <option value="{{ passenger.id }}">{{ passenger }}</option>
+        {% endfor %}
+    </select>
+    <input type="submit">
+</form>
+```
+
+## User Authentication
+
+```python
+# urls.py in app directory
+
+urlpatterns = [
+    path('', views.index, name="index"),
+    path("login", views.login_view, name="login"),
+    path("logout", views.logout_view, name="logout")
+]
+```
+
+```html
+<!-- login.html -->
+
+{% extends "users/layout.html" %}
+
+{% block body %}
+    {% if message %}
+        <div>{{ message }}</div>
+    {% endif %}
+
+    <form action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+        <input type="text", name="username", placeholder="Username">
+        <input type="password", name="password", placeholder="Password">
+        <input type="submit", value="Login">
+    </form>
+{% endblock %}
+```
+
+```html
+<!-- user.html -->
+
+{% extends "users/layout.html" %}
+
+{% block body %}
+    <h1>Welcome, {{ request.user.first_name }}</h1>
+    <ul>
+        <li>Username: {{ request.user.username }}</li>
+        <li>Email: {{ request.user.email }}</li>
+    </ul>
+
+    <a href="{% url 'logout' %}">Log Out</a>
+{% endblock %}
+```
+
+```python
+# views.py in app directory
+
+from django.contrib.auth import authenticate, login, logout
+
+def index(request):
+    # If no user is signed in, return to login page:
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+    return render(request, "users/user.html")
+
+def login_view(request):
+    if request.method == "POST":
+        # Accessing username and password from form data
+        username = request.POST["username"]
+        password = request.POST["password"]
+
+        # Check if username and password are correct, returning User object if so
+        user = authenticate(request, username=username, password=password)
+
+        # If user object is returned, log in and route to index page:
+        if user:
+            login(request, user)
+            return HttpResponseRedirect(reverse("index"))
+        # Otherwise, return login page again with new context
+        else:
+            return render(request, "users/login.html", {
+                "message": "Invalid Credentials"
+            })
+    return render(request, "users/login.html")
+
+def logout_view(request):
+    logout(request)
+    return render(request, "users/login.html", {
+                "message": "Logged Out"
+            })
+```
