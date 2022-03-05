@@ -118,3 +118,219 @@ CREATE INDEX name_index ON passengers (last);
 ```
 
 ## Django Models
+
+### Database Models
+
+```python
+# models.py in app directory
+# Sample code snippet on how to define database models
+
+from django.db import models
+
+class Flight(models.Model):
+    origin = models.CharField(max_length=64)
+    destination = models.CharField(max_length=64)
+    duration = models.IntegerField()
+
+    # Method provides instructions on how to show a Flight object as a string
+    def __str__(self):
+        return f"{self.id}: {self.origin} to {self.destination}"
+```
+
+### Migrations
+
+- Terminal command to create Python files that will create or edit our database to be able to store what we have in our models
+```
+python manage.py makemigrations
+```
+
+- Terminal command to apply migrations to database
+```
+python manage.py migrate
+```
+
+### Shell
+
+- Terminal command to enter Django shell
+```
+python manage.py shell
+```
+
+```python
+# Sample code snippets on the use of ORM models
+
+from flights.models import Flight
+
+# Create a new flight
+f = Flight(origin = "New York", destination = "London", duration = 415)
+
+# Insert flight into database
+f.save()
+
+# Query for all flights stored in database and stored it into a variable
+flights = Flight.objects.all()
+flights
+# Out: <QuerySet [<Flight: 1: New York to London>]>
+
+# Find just the first flight
+flight = flights.first()
+flight
+# Out: <Flight: 1: New York to London>
+
+# Display flight id
+flight.id
+# Out: 1
+
+# Display flight origin
+flight.origin
+# Out: "New York"
+
+# Display flight destination
+flight.destination
+# Out: "London"
+
+# Display flight duration
+flight.duration
+# Out: 415
+```
+
+### Normalize Database Models
+
+```python
+# models.py in app directory
+
+from django.db import models
+
+class Airport(models.Model):
+    code = models.CharField(max_length=3)
+    city = models.CharField(max_length=64)
+
+    def __str__(self):
+        return f"{self.city} ({self.code})"
+
+
+class Flight(models.Model):
+    origin = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="departures")
+    # What related_name does is that it provides a way for us to search for all flights with a given airport as their origin or departure
+    destination = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="arrivals")
+    duration = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.id}: {self.origin} to {self.destination}"
+```
+
+- Each time changes are made to models.py, we have to make migrations and then migrate
+
+```
+python manage.py makemigrations
+```
+
+```
+python manage.py migrate
+```
+
+```python
+# Sample code snippets on the use of ORM models
+
+from flights.models import *
+
+# Create new airports
+jfk = Airport(code="JFK", city="New York")
+lhr = Airport(code="LHR", city="London")
+cdg = Airport(code="CDG", city="Paris")
+nrt = Airport(code="NRT", city="Tokyo")
+
+# Save airports to database
+jfk.save()
+lhr.save()
+cdg.save()
+nrt.save()
+
+# Add flight and save to database
+f = Flight(origin=jfk, destination=lhr, duration=414)
+f.save()
+
+# Display some info about flight
+f
+# Out: <Flight: 1: New York (JFK) to London (LHR)>
+f.origin
+# Out: <Airport: New York (JFK)>
+
+# Use related name to query by airport of arrival
+lhr.arrivals.all()
+# Out: <QuerySet [<Flight: 1: New York (JFK) to London (LHR)>]>
+```
+
+### Start our application
+
+```python
+# urls.py in app directory
+
+urlpatterns = [
+    path('', views.index, name="index"),
+]
+```
+
+```python
+# views.py in app directory
+
+from django.shortcuts import render
+from .models import Flight, Airport
+
+def index(request):
+    return render(request, "flights/index.html", {
+        "flights": Flight.objects.all()
+    })
+```
+
+```html
+<!-- layout.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Flights</title>
+    </head>
+    <body>
+        {% block body %}
+        {% endblock %}
+    </body>
+</html>
+```
+
+```html
+<!-- index.html -->
+
+{% extends "flights/layout.html" %}
+
+{% block body %}
+    <h1>Flights:</h1>
+    <ul>
+        {% for flight in flights %}
+            <li>Flight {{ flight.id }}: {{ flight.origin }} to {{ flight.destination }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+```
+
+```python
+# Sample code snippets on the use of ORM models
+
+# Use filter command to find all airports based in New York
+Airport.objects.filter(city="New York")
+# Out: <QuerySet [<Airport: New York (JFK)>]>
+
+# Use get command to get only one airport in New York
+Airport.objects.get(city="New York")
+# Out: <Airport: New York (JFK)>
+
+# Assign airports to variables
+jfk = Airport.objects.get(city="New York")
+cdg = Airport.objects.get(city="Paris")
+
+# Create and save a new flight
+f = Flight(origin=jfk, destination=cdg, duration=435)
+f.save()
+```
+
+## Django Admin
