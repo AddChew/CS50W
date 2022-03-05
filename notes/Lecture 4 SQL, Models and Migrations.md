@@ -192,6 +192,10 @@ flight.destination
 # Display flight duration
 flight.duration
 # Out: 415
+
+# Delete flight
+flight.delete()
+# Out: (1, {"flights.Flight": 1})
 ```
 
 ### Normalize Database Models
@@ -255,6 +259,8 @@ f
 # Out: <Flight: 1: New York (JFK) to London (LHR)>
 f.origin
 # Out: <Airport: New York (JFK)>
+f.origin.code
+# Out: "JFK"
 
 # Use related name to query by airport of arrival
 lhr.arrivals.all()
@@ -319,6 +325,10 @@ def index(request):
 # Use filter command to find all airports based in New York
 Airport.objects.filter(city="New York")
 # Out: <QuerySet [<Airport: New York (JFK)>]>
+
+# Chain filter command with first command; return the first airport that is based in New York
+Airport.objects.filter(city="New York").first()
+# Out: <Airport: New York (JFK)>
 
 # Use get command to get only one airport in New York
 Airport.objects.get(city="New York")
@@ -388,8 +398,12 @@ from django.contrib import admin
 class FlightAdmin(admin.ModelAdmin):
     list_display = ("id", "origin", "destination", "duration")
 
+class PassengerAdmin(admin.ModelAdmin):
+    filter_horizontal = ("flights",)
+
 # Register your models here.
 admin.site.register(Flight, FlightAdmin)
+admin.site.register(Passenger, PassengerAdmin)
 ```
 
 ## Many-to-Many Relationships
@@ -412,7 +426,7 @@ class Passenger(models.Model):
 # views.py
 
 def flight(request, flight_id):
-    flight = Flight.objects.get(id=flight_id)
+    flight = Flight.objects.get(id=flight_id) # Can replace id with pk; i.e. pk=flight_id
     passengers = flight.passengers.all()
     return render(request, "flights/flight.html", {
         "flight": flight,
@@ -440,6 +454,8 @@ path("<int:flight_id>/book", views.book, name="book")
 ```python
 # views.py in app directory
 
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 # view for passenger to book a flight
 def book(request, flight_id):
@@ -478,7 +494,8 @@ def flight(request, flight_id):
 ```html
 <form action="{% url 'book' flight.id %}" method="post">
     {% csrf_token %}
-    <select name="passenger" id="">
+    <!-- Create dropdown list -->
+    <select name="passenger" id=""> 
         {% for passenger in non_passengers %}
             <option value="{{ passenger.id }}">{{ passenger }}</option>
         {% endfor %}
