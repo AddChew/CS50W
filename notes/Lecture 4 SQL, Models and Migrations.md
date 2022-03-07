@@ -146,7 +146,7 @@ python manage.py makemigrations <app name>
 
 - Terminal command to apply migrations to database
 ```
-python manage.py migrate <app name>
+python manage.py migrate
 ```
 
 ### Shell
