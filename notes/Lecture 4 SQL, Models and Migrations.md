@@ -141,12 +141,12 @@ class Flight(models.Model):
 
 - Terminal command to create Python files that will create or edit our database to be able to store what we have in our models
 ```
-python manage.py makemigrations
+python manage.py makemigrations <app name>
 ```
 
 - Terminal command to apply migrations to database
 ```
-python manage.py migrate
+python manage.py migrate <app name>
 ```
 
 ### Shell
