@@ -1,0 +1,14 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    Page Not Found
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>404</h1>
+        The requested page 
+        <a href="{{ request.build_absolute_uri }}">{{ request.build_absolute_uri }}</a>
+         was not found.
+    </div>
+{% endblock %}
