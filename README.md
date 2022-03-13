@@ -1,6 +1,6 @@
 # CS50W Project 0: Search
 
-Front-end for Google Search, Google Image Search and Google Advanced Search.
+Front-end replica for Google Search, Google Image Search and Google Advanced Search.
 
 [Link to Demo](https://youtu.be/GJGXYFzIomQ)
 
