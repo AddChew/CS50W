@@ -1,6 +1,6 @@
 # CS50W Project 1: Wiki
 
-Wikipedia-like online encyclopedia
+Wikipedia-like online encyclopedia which allows users to search, edit and create new entries.
 
 [Link to Demo](https://youtu.be/Jp9lS4yTamU)
 
