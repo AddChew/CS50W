@@ -1,0 +1,84 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}{{ listing.title }} | Auctions{% endblock %}
+
+{% block body %}
+    <div class="rem-1-left">
+
+        {% if user.is_authenticated and user == listing.bids.last.owner and not listing.is_active %}
+            <div class="alert alert-success">Congratulations, you won this auction!</div>
+        {% endif %}
+
+        {% if message %}
+            <div class="alert {{ alert_class }}">{{ message }}</div>
+        {% endif %}
+
+        <h2 class="rem-1-bottom">Listing: {{ listing.title|capfirst }}</h2>
+        <div class="row zero-left-margin">
+            {% if not listing.is_active %}
+                <div class="grey-box rem-1-bottom rem-half-right">Closed</div>
+            {% endif %}
+
+            {% if user.is_authenticated and user in listing.watchers.all %}
+                <div class="grey-box rem-1-bottom">Watchlist</div>
+            {% endif %}
+        </div>
+        <img class="img-thumbnail rem-1-bottom" src={% if listing.url %}"{{ listing.url }}"{% else %}"https://media.istockphoto.com/vectors/no-image-available-sign-vector-id922962354?k=20&m=922962354&s=612x612&w=0&h=f-9tPXlFXtz9vg_-WonCXKCdBuPUevOBkp3DQ-i0xqo="{% endif %}>
+        
+        {% if listing.desc %}     
+            <h5 class="rem-1-bottom">{{ listing.desc }}</h5>
+        {% endif %}
+
+        <h2 class="rem-1-bottom">
+            ${% if listing.bids.last.price %}{{ listing.bids.last.price|floatformat:2 }}{% else %}{{ listing.start_price|floatformat:2 }}{% endif %}
+        </h2>
+        <p class="rem-1-bottom">{{ listing.bids.all|length }} bid(s) so far. {% if user.is_authenticated and listing.bids.last.owner == user %}Your bid is the current bid.{% endif %}</p>
+
+        {% if user.is_authenticated %}
+            <form action="{% url 'listing' listing.id %}" method="post">
+                {% csrf_token %}
+                {% if user != listing.owner and listing.is_active %}
+                    {{ bidform }}
+                    <input name="btn" class="btn btn-primary rem-1-bottom" type="submit" value="Place Bid">
+                {% endif %}
+                {% if listing.is_active %}
+                    <input name="btn" class="btn btn-primary rem-1-bottom" type="submit" value={% if user in listing.watchers.all %}"Remove from Watchlist"{% else %}"Add to Watchlist"{% endif %}>
+                {% elif user in listing.watchers.all%}
+                    <input name="btn" class="btn btn-primary rem-1-bottom" type="submit" value="Remove from Watchlist">
+                {% endif %}
+                {% if user == listing.owner and listing.is_active %}
+                    <input name="btn" class="btn btn-primary rem-1-bottom" type="submit" value="Close Auction">
+                {% endif %}
+            </form>
+        {% endif %}
+
+        <h4>Details</h4>
+        <ul>
+            <li>Owner: <span class="blue">{{ listing.owner }}</span></li>
+            <li>List date: {{ listing.date }}</li>
+            <li>
+                Category: {{ listing.categories.all|join:", " }}
+            </li>
+        </ul>
+
+        <h5>{% if listing.comments.exists %}{{ listing.comments.all|length }} comment(s):{% else %}No comments:{% endif %}</h5> 
+        {% for comment in listing.comments.all %}
+            <div class="comment-container rem-1-bottom">
+                <p class="blue">{{ comment.owner }} <span class="user-date">{{ comment.date }}</span></p> 
+                <p>{{ comment.post }}</p>
+            </div>
+        {% empty %}
+
+        {% endfor %}
+
+        {% if user.is_authenticated %}
+            <div class="comment-box">
+                <form action="{% url 'listing' listing.id %}" method="post">
+                    {% csrf_token %}
+                    {{ commentform }}
+                    <input class="btn btn-primary" type="submit" value="Post Comment">
+                </form>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

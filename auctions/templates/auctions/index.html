@@ -1,0 +1,59 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}
+    {% if watchlist %}
+        Watchlist
+    {% elif category_name %}
+        {{ category_name|capfirst }}
+    {% else %}
+        Active Listings
+    {% endif %}
+     | Auctions  
+{% endblock %}
+
+{% block body %}
+    <h2 class="rem-1-left">
+        {% if watchlist %}
+                Watchlist
+        {% elif category_name %}
+            Active Listings for {{ category_name|capfirst }}
+        {% else %}
+            Active Listings
+        {% endif %}
+    </h2>
+    {% for listing in listings %}
+        <a class="listing" href="{% url 'listing' listing.id %}">
+            <div class="row row-container">
+                <div class="col-4 img-container">
+                    <img class="img-thumbnail rem-1-bottom" src={% if listing.url %}"{{ listing.url }}"{% else %}"https://media.istockphoto.com/vectors/no-image-available-sign-vector-id922962354?k=20&m=922962354&s=612x612&w=0&h=f-9tPXlFXtz9vg_-WonCXKCdBuPUevOBkp3DQ-i0xqo="{% endif %}>                     
+                </div>
+                <div class="col-8 desc-container">
+                    <div class="row">
+                        <h3 class="rem-1-bottom">{{ listing.title }}</h3>
+                    </div>
+                    <div class="row">
+                        <h5 class="rem-1-bottom">Price: ${% if listing.bids.last.price %}{{ listing.bids.last.price|floatformat:2 }}{% else %}{{ listing.start_price|floatformat:2 }}{% endif %}</h5>
+                    </div>
+                    {% if listing.desc %}
+                        <div class="row">
+                            <p class="rem-1-bottom">{{ listing.desc }}</p>
+                        </div>
+                    {% endif %}
+                    <div class="row user-date">
+                        <p>Listed by {{ listing.owner }} on {{ listing.date }}</p>
+                    </div>      
+                </div>
+            </div>
+        </a>
+    {% empty %}
+        <p class="rem-1-left">
+            {% if watchlist %}
+                Your watchlist is empty.
+            {% elif category_name %}
+                No active listings found for {{ category_name|capfirst }}.
+            {% else %}
+                No active listings found.
+            {% endif %}
+        </p>
+    {% endfor %}
+{% endblock %}
