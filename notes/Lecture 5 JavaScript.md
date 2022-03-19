@@ -172,7 +172,8 @@ document.addEventListener('DOMContentLoaded', function() {
 ```
 
 ### Negation
-- ```!``` is the negation operator in JavaScript (analogous to not operator in Python)
+
+```!``` is the negation operator in JavaScript (analogous to not operator in Python)
 
 ```javascript
 flag = false
