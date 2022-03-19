@@ -171,10 +171,56 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 ```
 
+### Negation
+- ```!``` is the negation operator in JavaScript (analogous to not operator in Python)
+
+```javascript
+flag = false
+
+// !flag === !false === true
+if (!flag){
+    // do something
+}
+```
+
 ## Local Storage
 
-## APIs
+- Allows us to store information on the user's web browser that we can access later
+- Information is stored as key-value pairs
+- ```localStorage.getItem(key)```: This function searches for an entry in local storage with a given key, and returns the value associated with that key
+- ```localStorage.setItem(key, value)```: This function sets an entry in local storage, associating the key with a new value
 
-### JSON
+```javascript
+// Check if there is already a value in local storage
+if (!localStorage.getItem('counter')) {
+
+    // If not, set the counter to 0 in local storage
+    localStorage.setItem('counter', 0);
+}
+            
+function count() {
+    // Retrieve counter value from local storage
+    let counter = localStorage.getItem('counter');
+
+    // update counter
+    counter++;
+    document.querySelector('h1').innerHTML = counter;
+
+    // Store counter in local storage
+    localStorage.setItem('counter', counter);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Set heading to the current value inside local storage
+    document.querySelector('h1').innerHTML = localStorage.getItem('counter');
+    document.querySelector('button').onclick = count;
+});
+```
+
+### How to access local storage in browser
+
+Right click > Inspect > Application (Click on >> to access it) > Local Storage
+
+## APIs
 
 ### Currency Exchange
