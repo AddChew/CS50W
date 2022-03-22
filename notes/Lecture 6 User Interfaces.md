@@ -57,12 +57,14 @@ def section(request, num):
 
 ### JavaScript History API
 
-- Allows us to push information into our browser history and update the URL manually
-- ```history.pushState``` function:
-    Adds a new element to our browsing history based on 3 arguments
-    1. Any data associated with the state
-    2. A title parameter ignored by most browsers
-    3. What should be displayed in the URL
+Allows us to push information into our browser history and update the URL manually
+
+#### history.pushState
+Adds a new element to our browsing history based on 3 arguments
+
+1. Any data associated with the state
+2. A title parameter ignored by most browsers
+3. What should be displayed in the URL
 
 ```javascript
 // singlepage.js
