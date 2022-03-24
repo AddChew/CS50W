@@ -191,7 +191,7 @@ def posts(request):
 
 - ```posts``` view takes in two arguments, start and end
 - Can test out the API by visiting ```localhost:8000/posts?start=10&end=15``` which returns the following JSON:
-- ```python
+```python
 {
     "posts": [
         "Post #10",
