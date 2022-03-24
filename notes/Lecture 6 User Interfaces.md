@@ -101,3 +101,105 @@ document.addEventListener('DOMContentLoaded', () => {
     })
 })
 ```
+
+## Scroll
+
+### window
+
+- Represents what is currently visible to the user
+- ```window.innerWidth```: width of the window in pixels
+- ```window.innerHeight```: height of window in pixels
+- ```window.scrollY```: how many pixels we have scrolled from the top of the page
+- ```document.body.offsetHeight```: height of the entire document in pixels
+- Can use ```window.scrollY + window.innerHeight >= document.body.offsetHeight``` to determine if a user has scrolled to the end of the page
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Scroll</title>
+        <script>
+
+            // Event listener for scrolling
+            window.onscroll = () => {
+                // Check if we're at the bottom
+                if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+
+                    // Change color to green
+                    document.querySelector('body').style.background = 'green'
+                } else {
+
+                    // Change color to white
+                    document.querySelector('body').style.background = 'white'
+                }
+            }
+
+        </script>
+    </head>
+    <body>
+        <p>1</p>
+        <p>2</p>
+        <!-- More paragraphs left out to save space -->
+        <p>99</p>
+        <p>100</p>
+    </body>
+</html>
+```
+
+### Infinite Scroll
+
+```python
+# urls.py
+
+urlpatterns = [
+    path("", views.index, name="index"),
+    path("posts", views.posts, name="posts")
+]
+```
+
+```python
+# views.py
+
+import time
+
+from django.http import JsonResponse
+from django.shortcuts import render
+
+# Create your views here.
+def index(request):
+    return render(request, "posts/index.html")
+
+def posts(request):
+
+    # Get start and end points
+    start = int(request.GET.get("start") or 0)
+    end = int(request.GET.get("end") or (start + 9))
+
+    # Generate list of posts
+    data = []
+    for i in range(start, end + 1):
+        data.append(f"Post #{i}")
+
+    # Artificially delay speed of response
+    time.sleep(1)
+
+    # Return list of posts
+    return JsonResponse({
+        "posts": data
+    })
+```
+
+- ```posts``` view takes in two arguments, start and end
+- Can test out the API by visiting ```localhost:8000/posts?start=10&end=15``` which returns the following JSON:
+- ```python
+{
+    "posts": [
+        "Post #10",
+        "Post #11", 
+        "Post #12", 
+        "Post #13", 
+        "Post #14", 
+        "Post #15"
+    ]
+}
+```
