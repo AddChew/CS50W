@@ -552,3 +552,10 @@ document.addEventListener('click', event => {
 ```
 
 ## React
+
+- ```Imperative Programming```: have to write code to tell the computer both _what_ and _how_ we wish to display
+- ```Declarative Programming```: allows us to simply write code explaining _what_ we wish to display and not worry about _how_ we are displaying it
+- Have to import these 3 JavaScript packages to use React in a HTML file:
+    - ```React```
+    - ```ReactDOM```
+    - ```Babel```
