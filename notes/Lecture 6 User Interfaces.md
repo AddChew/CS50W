@@ -456,7 +456,7 @@ document.addEventListener('DOMContentLoaded', function() {
 })
 ```
 
-- Apply animations to posts page
+### Add Animations to Posts Page
 
 ```javascript
 // posts/script.js
@@ -556,6 +556,229 @@ document.addEventListener('click', event => {
 - ```Imperative Programming```: have to write code to tell the computer both _what_ and _how_ we wish to display
 - ```Declarative Programming```: allows us to simply write code explaining _what_ we wish to display and not worry about _how_ we are displaying it
 - Have to import these 3 JavaScript packages to use React in a HTML file:
-    - ```React```
-    - ```ReactDOM```
-    - ```Babel```
+    - ```React```: Defines components and their behaviour
+    - ```ReactDOM```: Takes React components and inserts them into the DOM
+    - ```Babel```: Translates from ```JSX```, the language used in React, to plain JavaScript that browers can interpret
+
+```html
+<!-- Toy React App -->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+        <title>Hello</title>
+    </head>
+    <body>
+        <div id="app"></div>
+
+        <script type="text/babel">
+            function App() {
+                return (
+                    <div>
+                        Hello!
+                    </div>
+                );
+            }
+
+            ReactDOM.render(<App />, document.querySelector("#app"));
+        </script>
+    </body>
+</html>
+```
+
+Notes
+
+- We include a single ```div``` in the body with an ```id``` of ```app```; we almost always want to leave this empty and fill it in with our react code below
+
+- We include a script tag where we specify ```type="text/babel"```; this signals to the browser that the following script needs to be translated using Babel
+
+- Next, we create a component called ```App```; components in React can be represented by JavaScript functions
+
+- Our component returns what we would like to render to the DOM; in this case, we simply return ```<div>Hello!</div>```
+
+- The last line of our script employs the ```ReactDOM.render``` function, which takes two arguments:
+    1.  A component to render
+    2. An element in the DOM inside of which the component should be rendered
+
+### Render components within other components
+
+```javascript
+// Create component called Hello
+function Hello(props) {
+    return (
+        <h1>Hello</h1>
+    );
+}
+
+// Render 3 Hello components inside of App component
+function App() {
+    return (
+        <div>
+            <Hello />
+            <Hello />
+            <Hello />
+        </div>
+    );
+}
+```
+
+### Props
+
+- We can make components more flexible by adding additional properties (***props*** in React terms) to them
+
+```javascript
+// Example of props usage
+
+function Hello(props) {
+    return (
+        <h1>Hello, {props.name}!</h1>
+    );
+}
+
+
+function App() {
+    return (
+        <div>
+            <Hello name="Harry" />
+            <Hello name="Ron" />
+            <Hello name="Hermione" />
+        </div>
+    );
+}
+```
+### UseState Hook
+
+- Use React's ```useState``` hook to add state to our component
+- Argument to ```useState``` is the initial value of the state
+- ```useState``` function returns both a variable representing the state and a function that allows us to update the state
+
+```html
+<!-- Example usage of useState hook -->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+        <title>Counter</title>
+    </head>
+    <body>
+        <div id="app"></div>
+
+        <script type="text/babel">
+            function App() {
+                const [count, setCount] = React.useState(0)
+
+                function updateCount() {
+                    setCount(count + 1)
+                }
+
+                // Add event listener for when the button is clicked, which React handles using the onClick attribute
+                return (
+                    <div>
+                        <h1>{count}</h1>
+                        <button onClick={updateCount}>Count</button>
+                    </div>
+                );
+            }
+            
+            ReactDOM.render(<App />, document.querySelector("#app"));
+        </script>
+    </body>
+</html>
+```
+
+### Addition
+
+```html
+<!-- Game-like site where users will solve addition problems -->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+        <title>Addition</title>
+        <style>
+            #app {
+                text-align: center;
+                font-family: sans-serif;
+            }
+
+            #problem {
+                font-size: 72px;
+            }
+
+            #winner {
+                font-size: 72px;
+                color: green;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app"></div>
+
+        <script type="text/babel">
+            function App() {
+                const [state, setState] = React.useState({
+                    num1: Math.ceil(Math.random() * 10),
+                    num2: Math.ceil(Math.random() * 10),
+                    response: "",
+                    score: 0,
+                })
+
+                function updateResponse(event) {
+                    setState({
+                        ...state,
+                        response: event.target.value,
+                    })
+                }
+
+                function inputKeyPress(event) {
+                    if (event.key === "Enter") {
+                        const answer = parseInt(state.response)
+
+                        // Check if answer is correct
+                        if (answer === state.num1 + state.num2) {
+                            // User got question right
+                            setState({
+                                num1: Math.ceil(Math.random() * 10),
+                                num2: Math.ceil(Math.random() * 10),
+                                response: "",
+                                score: state.score + 1,
+                            })
+                        } else {
+                            // User got question wrong
+                            setState({
+                                ...state,
+                                response: "",
+                                score: state.score - 1,
+                            })
+                        }
+                    }
+                }
+                
+                // Win condition
+                if (state.score === 10) {
+                    return <div id="winner">You won!</div>
+                }
+
+                return (
+                    <div>
+                        <div id="problem">{state.num1} + {state.num2}</div>
+                        <input value={state.response} onChange={updateResponse} onKeyPress={inputKeyPress}/>
+                        <div>Score : {state.score}</div>
+                    </div>
+                )
+            }
+
+            ReactDOM.render(<App />, document.querySelector("#app"));
+        </script>
+    </body>
+</html>
+```
