@@ -771,7 +771,7 @@ function App() {
                 return (
                     <div>
                         <div id="problem">{state.num1} + {state.num2}</div>
-                        <input value={state.response} onChange={updateResponse} onKeyPress={inputKeyPress}/>
+                        <input autoFocus={true} value={state.response} onChange={updateResponse} onKeyPress={inputKeyPress}/>
                         <div>Score : {state.score}</div>
                     </div>
                 )
