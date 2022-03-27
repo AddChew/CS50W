@@ -718,6 +718,10 @@ function App() {
                 font-size: 72px;
                 color: green;
             }
+
+            .incorrect {
+                color: red;
+            }
         </style>
     </head>
     <body>
@@ -730,6 +734,7 @@ function App() {
                     num2: Math.ceil(Math.random() * 10),
                     response: "",
                     score: 0,
+                    incorrect: false,
                 })
 
                 function updateResponse(event) {
@@ -751,6 +756,7 @@ function App() {
                                 num2: Math.ceil(Math.random() * 10),
                                 response: "",
                                 score: state.score + 1,
+                                incorrect: false,
                             })
                         } else {
                             // User got question wrong
@@ -758,6 +764,7 @@ function App() {
                                 ...state,
                                 response: "",
                                 score: state.score - 1,
+                                incorrect: true,
                             })
                         }
                     }
@@ -770,7 +777,7 @@ function App() {
 
                 return (
                     <div>
-                        <div id="problem">{state.num1} + {state.num2}</div>
+                        <div className={state.incorrect ? "incorrect" : ""} id="problem">{state.num1} + {state.num2}</div>
                         <input autoFocus={true} value={state.response} onChange={updateResponse} onKeyPress={inputKeyPress}/>
                         <div>Score : {state.score}</div>
                     </div>
