@@ -279,3 +279,276 @@ function add_post(contents) {
     document.querySelector('#posts').append(post)
 }
 ```
+
+## Animation
+
+- To create an animation in CSS, we use the format below, where the animation specifics can include starting and ending styles (```to``` and ```from```) or styles at difference stages in the duration (anywhere from ```0%``` to ```100%```)
+
+```css
+@keyframes animation_name {
+    from {
+        /* Some styling for the start */
+    }
+
+    to {
+        /* Some styling for the end */
+    }
+}
+```
+
+or:
+
+```css
+@keyframes animation_name {
+    0% {
+        /* Some styling for the start */
+    }
+
+    75% {
+        /* Some styling after 3/4 of animation */
+    }
+
+    100% {
+        /* Some styling for the end */
+    }
+}
+```
+
+- To apply an animation to an element, we include the ```animation-name```, the ```animation-duration``` (in seconds) and the ```animation-fill-mode``` (typically ```forwards```)
+
+```html
+<!-- Example of page where a title grows when we first enter the page: -->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Animate</title>
+        <style>
+            @keyframes grow {
+                from {
+                    font-size: 20px;
+                }
+                to {
+                    font-size: 100px;
+                }
+            }
+
+            h1 {
+                animation-name: grow;
+                animation-duration: 2s;
+                animation-fill-mode: forwards;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Welcome!</h1>
+    </body>
+</html>
+```
+
+```html
+<!-- Example of page where a title changes position when we first enter the page: -->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Animate</title>
+        <style>
+            @keyframes move {
+                from {
+                    left: 0%;
+                }
+                to {
+                    left: 50%;
+                }
+            }
+
+            h1 {
+                position: relative;
+                animation-name: move;
+                animation-duration: 2s;
+                animation-fill-mode: forwards;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Welcome!</h1>
+    </body>
+</html>
+```
+
+```css
+/* Intermediate CSS properties; specify the style at any percentage of the way through an animation */
+
+/* Move title from left to right and then back to left */
+
+@keyframes move {
+    0% {
+        left: 0%;
+    }
+    50% {
+        left: 50%;
+    }
+    100% {
+        left: 0%;
+    }
+}
+```
+
+- If we want to repeat an animation multiple times, we can change the ```animation-iteration-count``` to a number greater than 1 (or even ```infinite``` for endless animation)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Animate</title>
+        <style>
+            @keyframes move {
+                0% {
+                    left: 0%;
+                }
+                50% {
+                    left: 50%;
+                }
+                100% {
+                    left: 0%;
+                }
+            }
+
+            h1 {
+                position: relative;
+                animation-name: move;
+                animation-duration: 2s;
+                animation-iteration-count: infinite;
+                animation-fill-mode: forwards;
+            }
+        </style>
+    </head>
+    <body>
+        <button>Click Here!</button>
+        <h1>Welcome!</h1>
+    </body>
+</html>
+```
+
+```javascript
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Find heading
+    const h1 = document.querySelector('h1');
+
+    // Pause Animation by default
+    h1.style.animationPlayState = 'paused';
+
+    // Wait for button to be clicked
+    document.querySelector('button').onclick = () => {
+
+        // If animation is currently paused, begin playing it
+        if (h1.style.animationPlayState == 'paused') {
+            h1.style.animationPlayState = 'running';
+        }
+
+        // Otherwise, pause the animation
+        else {
+            h1.style.animationPlayState = 'paused';
+        }
+    }
+})
+```
+
+- Apply animations to posts page
+
+```javascript
+// posts/script.js
+
+// Add a new post with given contents to DOM
+function add_post(contents) {
+
+    // Create new post
+    const post = document.createElement('div');
+    post.className = 'post';
+    post.innerHTML = `${contents} <button class="hide">Hide</button>`;
+
+    // Add post to DOM
+    document.querySelector('#posts').append(post);
+};
+
+
+// If hide button is clicked, delete the post
+document.addEventListener('click', event => {
+
+    // Find what was clicked on
+    const element = event.target;
+
+    // Check if the user clicked on a hide button
+    if (element.className === 'hide') {
+        element.parentElement.style.animationPlayState = 'running';
+        element.parentElement.addEventListener('animationend', () => {
+            element.parentElement.remove();
+        });
+    }
+    
+});
+```
+
+- Add animation to have the post fade away and shrink before we remove it
+- Animation will spend 75% of its time changing the opacity from 1 to 0 (post fade out slowly)
+- Animation will then spend the remaining 25% of its time changing its ```height```-related attributes to 0 (shrink the page to nothing)
+
+```html
+<!-- posts/index.html -->
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>My Webpage</title>
+        <style>
+            @keyframes hide {
+                0% {
+                    opacity: 1;
+                    height: 100%;
+                    line-height: 100%;
+                    padding: 20px;
+                    margin-bottom: 10px;
+                }
+                75% {
+                    opacity: 0;
+                    height: 100%;
+                    line-height: 100%;
+                    padding: 20px;
+                    margin-bottom: 10px;
+                }
+                100% {
+                    opacity: 0;
+                    height: 0px;
+                    line-height: 0px;
+                    padding: 0px;
+                    margin-bottom: 0px;
+                }
+            }
+
+            .post {
+                background-color: #77dd11;
+                padding: 20px;
+                margin-bottom: 10px;
+                animation-name: hide;
+                animation-duration: 2s;
+                animation-fill-mode: forwards;
+                animation-play-state: paused; /* post will not be hidden by default */
+            }
+
+            body {
+                padding-bottom: 50px;
+            }
+        </style>
+        <script src="{% static 'posts/script.js' %}"></script>
+    </head>
+    <body>
+        <div id="posts">
+        </div>
+    </body>
+</html>
+```
+
+## React
