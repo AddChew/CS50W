@@ -2,7 +2,7 @@
 
 Front-end for an email client that makes Django API calls to send and receive emails.
 
-[Link to Demo]()
+[Link to Demo](https://youtu.be/uhamGxxxjnc)
 
 ## How to run the project
 
