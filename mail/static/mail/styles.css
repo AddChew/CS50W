@@ -1,0 +1,29 @@
+textarea {
+    min-height: 400px;
+}
+
+.btn {
+    margin-right: .25rem;
+}
+
+.mail {
+    padding: .375rem .75rem;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+}
+
+.mail:hover {
+    cursor: pointer;
+}
+
+.text-grey {
+    color: #6c757d;
+}
+
+.background-grey {
+    background-color: #e9ecef;
+}
+
+.margin-bottom {
+    margin-bottom: .5rem;
+}

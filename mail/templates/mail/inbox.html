@@ -1,0 +1,10 @@
+{% extends "mail/layout.html" %}
+{% load static %}
+
+
+{% block script %}
+    {{ request.user.email|json_script:"user-email" }}
+    {% url 'logout' as logout_url %}
+    {{ logout_url|json_script:"logout_url" }}
+    <script type="text/babel" src="{% static 'mail/inbox.jsx' %}"></script>
+{% endblock %}
