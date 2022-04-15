@@ -1,0 +1,9 @@
+.container {
+    border-left: .0625rem solid #ced4da;
+    border-right: .0625rem solid #ced4da;
+    min-height: 100vh;
+}
+
+.navbar {
+    padding: 1rem 0rem 0rem;
+}
