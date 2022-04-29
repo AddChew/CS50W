@@ -2,7 +2,7 @@ from django.test import Client, TestCase
 from network.models import User
 
 
-class LogoutAPITestCase(TestCase):
+class AuthenticationAPITestCase(TestCase):
     
     def setUp(self):
         # Create user
@@ -11,9 +11,22 @@ class LogoutAPITestCase(TestCase):
         # Set up client to make requests
         self.client = Client()
 
-    def test_valid_logout(self):
-        # Send get request to /api/logout
-        response = self.client.get("/api/logout")
+    def test_logged_in(self):
+        # Login the user
+        self.client.login(username = "AAA", password = "AAA")
+
+        # Send get request to /api/authentication
+        response = self.client.get("/api/authentication")
+
+        # Ensure that the status code is 200
+        self.assertEqual(response.status_code, 200)
+
+        # Ensure that the correct json response is returned for logged in user
+        self.assertEqual(response.json(), {"logged_in": True, "username": "AAA"})
+
+    def test_logged_out(self):
+        # Send get request to /api/authentication
+        response = self.client.get("/api/authentication")
 
         # Ensure that the status code is 200
         self.assertEqual(response.status_code, 200)
@@ -22,8 +35,8 @@ class LogoutAPITestCase(TestCase):
         self.assertEqual(response.json(), {"logged_in": False, "username": None})
 
     def test_invalid_request(self):
-        # Send post request to /api/login
-        response = self.client.post("/api/logout")
+        # Send post request to /api/authentication
+        response = self.client.post("/api/authentication")
 
         # Ensure that the status code is 400
         self.assertEqual(response.status_code, 400)

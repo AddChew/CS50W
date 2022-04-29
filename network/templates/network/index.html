@@ -1,14 +1,19 @@
-{% extends "network/layout.html" %}
+{% load static %}
 
-{% block body %}
-    <h2>All Posts</h2>
-    {% if user.is_authenticated %}
-        <form>
-            {% csrf_token %}
-            <h5>New Post</h5>
-            {{ form }}
-            <input class="btn btn-primary" type="submit" value="Post">
-        </form>
-    {% endif %}
-    TODO
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{% block title %}Social Network{% endblock %}</title>
+        <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
+        <script src="https://unpkg.com/react-router-dom@5.1.0/umd/react-router-dom.min.js" crossorigin></script>
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js" crossorigin></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.1.1/css/all.css" integrity="sha384-/frq1SRXYH/bSyou/HUp/hib7RVN1TawQYja658FEOodR/FQBKVqT9Ol+Oz3Olq5" crossorigin="anonymous"/>
+        <link href="{% static 'network/styles.css' %}" rel="stylesheet">
+        <script type="text/babel" src="{% static 'network/network.jsx' %}"></script>
+    </head>
+    <body>
+        <div id="root" class="container"></div>
+    </body>
+</html>

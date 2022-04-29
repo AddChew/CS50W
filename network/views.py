@@ -1,15 +1,16 @@
 import json
 from django.contrib.auth import authenticate, login, logout
-from django.db import IntegrityError
 from django.core.paginator import Paginator
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
-from django.urls import reverse, resolve
+from django.urls import resolve
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .models import User, Post
-from .forms import PostForm
+from .forms import LoginForm, RegisterForm, PostForm
 
 
+@ensure_csrf_cookie
 def index(request):
     return render(request, "network/index.html", {"form": PostForm()})
 
@@ -25,7 +26,7 @@ def post(request, post_id):
 
     # Return post if it is a GET request
     if request.method == "GET":
-        return JsonResponse(post.serialize())
+        return JsonResponse(post.serialize(request.user))
 
     # Check if user is logged in
     if request.user.is_authenticated:
@@ -83,7 +84,7 @@ def posts(request):
                 postform = PostForm(dict(content = content))
                 if postform.is_valid():
                     post = Post.objects.create(owner = request.user, **postform.cleaned_data)
-                    return JsonResponse(post.serialize())
+                    return JsonResponse(post.serialize(request.user))
 
             return JsonResponse({"error": "Invalid post content."}, status = 422)
 
@@ -95,9 +96,18 @@ def posts(request):
 
     # Setup paginator
     paginator = Paginator(posts, 10)
-    page_number = request.GET.get("page") or 1
+    page_num = int(request.GET.get("page") or 1)
+    num_pages = paginator.num_pages
+
+    # Ensure that page_num is valid
+    if page_num > num_pages or page_num < 1:
+        return JsonResponse({"error": "Page not found."}, status = 404)
     
-    return JsonResponse([post.serialize() for post in paginator.get_page(page_number)], safe = False)
+    return JsonResponse({
+        "posts": [post.serialize(request.user) for post in paginator.get_page(page_num)],
+        "page_num": page_num,
+        "num_pages": num_pages,
+    })
 
 
 def profile(request, username):
@@ -118,12 +128,20 @@ def profile(request, username):
 
             # Setup paginator
             paginator = Paginator(user_posts, 10)
-            page_number = request.GET.get("page") or 1
+            page_num = int(request.GET.get("page") or 1)
+            num_pages = paginator.num_pages
+
+            # Ensure that page_num is valid
+            if page_num > num_pages or page_num < 1:
+                return JsonResponse({"error": "Page not found."}, status = 404)
+
             page_posts = {
-                "posts": [post.serialize() for post in paginator.get_page(page_number)]
+                "posts": [post.serialize(request.user) for post in paginator.get_page(page_num)],
+                "page_num": page_num,
+                "num_pages": num_pages,
             }
             
-            return JsonResponse({**user.serialize(), **page_posts})
+            return JsonResponse({**user.serialize(request.user), **page_posts})
 
         elif request.method == "PUT":
 
@@ -149,53 +167,122 @@ def profile(request, username):
             return JsonResponse({"error": "GET or PUT request required."}, status = 400)
 
 
-def login_view(request):
+def login_user(request):
     if request.method == "POST":
+        data = json.loads(request.body)
+        loginform = LoginForm(data)
 
-        # Attempt to sign user in
-        username = request.POST["username"]
-        password = request.POST["password"]
-        user = authenticate(request, username=username, password=password)
+        if loginform.is_valid():
 
-        # Check if authentication successful
-        if user is not None:
+            # Attempt to sign user in
+            user = authenticate(request, **loginform.cleaned_data)
+
+            # Check if authentication is successful
+            if user is not None:
+                login(request, user)
+                return JsonResponse({"logged_in": True, "username": request.user.username})
+
+        return JsonResponse({"error": "Invalid username and/or password."}, status = 401)
+
+    return JsonResponse({"error": "POST request required."}, status = 400)
+
+
+def logout_user(request):
+    if request.method == "GET":
+        logout(request)
+        return JsonResponse({"logged_in": False, "username": None})
+
+    return JsonResponse({"error": "GET request required."}, status = 400)
+
+
+def register_user(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        registerform = RegisterForm(data)
+
+        if registerform.is_valid():
+
+            # Pop confirmation from cleaned data
+            registerform.cleaned_data.pop("confirmation")
+
+            # Create user
+            user = User.objects.create_user(**registerform.cleaned_data)
+
+            # Login user
             login(request, user)
-            return HttpResponseRedirect(reverse("index"))
-        else:
-            return render(request, "network/login.html", {
-                "message": "Invalid username and/or password."
-            })
-    else:
-        return render(request, "network/login.html")
+
+            return JsonResponse({"logged_in": True, "username": request.user.username})
+
+        return JsonResponse(registerform.errors.get_json_data(), status = 401)
+
+    return JsonResponse({"error": "POST request required."}, status = 400)
+    
+
+def authentication_status(request):
+    if request.method == "GET":
+        if request.user.is_authenticated:
+            return JsonResponse({"logged_in": True, "username": request.user.username})
+        return JsonResponse({"logged_in": False, "username": None})
+
+    return JsonResponse({"error": "GET request required."}, status = 400)
 
 
-def logout_view(request):
-    logout(request)
-    return HttpResponseRedirect(reverse("index"))
+# def login_view(request):
+#     if request.method == "POST":
+
+#         loginform = LoginForm(request.POST)
+#         if loginform.is_valid():
+
+#         # Attempt to sign user in
+#             username = request.POST["username"]
+#             password = request.POST["password"]
+#             user = authenticate(request, username=username, password=password)
+
+#             # Check if authentication successful
+#             if user is not None:
+#                 login(request, user)
+#                 return HttpResponseRedirect(reverse("index"))
+#             else:
+#                 return render(request, "network/login.html", {
+#                     "message": "Invalid username and/or password."
+#                 })
+#         return render(request, "network/login.html", {"loginform": loginform})
+#     else:
+#         return render(request, "network/login.html", {"loginform": LoginForm()})
 
 
-def register(request):
-    if request.method == "POST":
-        username = request.POST["username"]
-        email = request.POST["email"]
+# def logout_view(request):
+#     logout(request)
+#     return HttpResponseRedirect(reverse("index"))
 
-        # Ensure password matches confirmation
-        password = request.POST["password"]
-        confirmation = request.POST["confirmation"]
-        if password != confirmation:
-            return render(request, "network/register.html", {
-                "message": "Passwords must match."
-            })
 
-        # Attempt to create new user
-        try:
-            user = User.objects.create_user(username, email, password)
-            user.save()
-        except IntegrityError:
-            return render(request, "network/register.html", {
-                "message": "Username already taken."
-            })
-        login(request, user)
-        return HttpResponseRedirect(reverse("index"))
-    else:
-        return render(request, "network/register.html")
+# def register(request):
+#     if request.method == "POST":
+#         registerform = RegisterForm(request.POST)
+#         if registerform.is_valid():
+#             print("Valid!")
+#         print(registerform.errors.as_json())
+#         return render(request, "network/register.html", {"registerform": registerform})
+        # username = request.POST["username"]
+        # email = request.POST["email"]
+
+        # # Ensure password matches confirmation
+        # password = request.POST["password"]
+        # confirmation = request.POST["confirmation"]
+        # if password != confirmation:
+        #     return render(request, "network/register.html", {
+        #         "message": "Passwords must match."
+        #     })
+
+        # # Attempt to create new user
+        # try:
+        #     user = User.objects.create_user(username, email, password)
+        #     user.save()
+        # except IntegrityError:
+        #     return render(request, "network/register.html", {
+        #         "message": "Username already taken."
+        #     })
+        # login(request, user)
+        # return HttpResponseRedirect(reverse("index"))
+    # else:
+    #     return render(request, "network/register.html", {"registerform": RegisterForm()})

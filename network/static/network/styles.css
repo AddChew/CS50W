@@ -1,4 +1,4 @@
-.container {
+#root {
     border-left: .0625rem solid #ced4da;
     border-right: .0625rem solid #ced4da;
     min-height: 100vh;
@@ -6,4 +6,52 @@
 
 .navbar {
     padding: 1rem 0rem 0rem;
+}
+
+.post-container {
+    border: .0625rem solid #ced4da;
+    border-radius: .25rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.profile-container {
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.red {
+    color: #FD1D1D;
+}
+
+.fa-heart:hover {
+    cursor: pointer;
+}
+
+.text-grey {
+    color: #6c757d;
+}
+
+.username {
+    color: black;
+}
+
+.username:hover {
+    color: black;
+}
+
+p {
+    margin-bottom: 0rem;
+}
+
+.margin-right {
+    margin-right: .25rem;
+}
+
+.margin-right-1rem {
+    margin-right: 1rem;
+}
+
+.margin-bottom-2rem {
+    margin-bottom: 2rem;
 }

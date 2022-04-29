@@ -44,6 +44,7 @@ class PostAPITestCase(TestCase):
             "content": "post1",
             "owner": "AAA",
             "num_likes": 0,
+            "liked": False,
             "date_posted": self.datetime.strftime("%b %d %Y, %I:%M %p")
         })
 
@@ -59,6 +60,7 @@ class PostAPITestCase(TestCase):
             "content": "post2",
             "owner": "BBB",
             "num_likes": 1,
+            "liked": False,
             "date_posted": (self.datetime + timezone.timedelta(days = 1)).strftime("%b %d %Y, %I:%M %p")
         })
 
@@ -90,7 +92,7 @@ class PostAPITestCase(TestCase):
         # Ensure that the status code is 400
         self.assertEqual(response.status_code, 400)
 
-        # Ensure that the correct json response is returned for post1
+        # Ensure that the correct error message is returned
         self.assertEqual(response.json(), {"error": "PUT request required."})
 
     def test_valid_like(self):

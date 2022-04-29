@@ -25,7 +25,8 @@ class PostsAPITestCase(TestCase):
                 "id": i, 
                 "content": f"post{i}", 
                 "owner": "AAA", 
-                "num_likes": 0, 
+                "num_likes": 0,
+                "liked": False,
                 "date_posted": (self.datetime + timezone.timedelta(days = i)).strftime("%b %d %Y, %I:%M %p")
             }
             for i in range(11, 1, -1)
@@ -36,7 +37,8 @@ class PostsAPITestCase(TestCase):
                 "id": 1, 
                 "content": "post1", 
                 "owner": "BBB", 
-                "num_likes": 0, 
+                "num_likes": 0,
+                "liked": False,
                 "date_posted": self.datetime.strftime("%b %d %Y, %I:%M %p")                
             }
         ]
@@ -52,7 +54,11 @@ class PostsAPITestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # Ensure that the correct json response is returned for first page
-        self.assertEqual(response.json(), self.user1_posts)
+        self.assertEqual(response.json(), {
+            "posts": self.user1_posts,
+            "page_num": 1,
+            "num_pages": 2
+        })
 
         # Send get request to posts for second page
         response = self.client.get("/api/posts?page=2")
@@ -61,7 +67,30 @@ class PostsAPITestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # Ensure that the correct json response is returned for first page
-        self.assertEqual(response.json(), self.user2_posts)
+        self.assertEqual(response.json(), {
+            "posts": self.user2_posts,
+            "page_num": 2,
+            "num_pages": 2
+        })
+
+    def test_invalid_all_posts_pages(self):
+        # Send get request to posts with invalid page number
+        response = self.client.get("/api/posts?page=-1")
+
+        # Ensure that status code is 404
+        self.assertEqual(response.status_code, 404)
+
+        # Ensure that the correct json response is returned
+        self.assertEqual(response.json(), {"error": "Page not found."})
+
+        # Send get request to posts with invalid page number
+        response = self.client.get("/api/posts?page=3")
+
+        # Ensure that status code is 404
+        self.assertEqual(response.status_code, 404)
+
+        # Ensure that the correct json response is returned
+        self.assertEqual(response.json(), {"error": "Page not found."})
 
     def test_following_posts(self):
         # Login the user
@@ -74,7 +103,33 @@ class PostsAPITestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # Ensure that the correct json response is returned for first page
-        self.assertEqual(response.json(), self.user2_posts)
+        self.assertEqual(response.json(), {
+            "posts": self.user2_posts,
+            "page_num": 1,
+            "num_pages": 1
+        })
+
+    def test_invalid_following_pages(self):
+        # Login the user
+        self.client.login(username = "AAA", password = "AAA")
+        
+        # Send get request to /api/posts/following with invalid page number
+        response = self.client.get("/api/posts/following?page=-1")
+
+        # Ensure that status code is 404
+        self.assertEqual(response.status_code, 404)
+
+        # Ensure that the correct json response is returned
+        self.assertEqual(response.json(), {"error": "Page not found."})
+
+        # Send get request to /api/posts/following with invalid page number
+        response = self.client.get("/api/posts/following?page=2")
+
+        # Ensure that status code is 404
+        self.assertEqual(response.status_code, 404)
+
+        # Ensure that the correct json response is returned
+        self.assertEqual(response.json(), {"error": "Page not found."})
 
     def test_unauthenticated_following_posts(self):
         # Send get request to /api/posts/following
@@ -108,7 +163,8 @@ class PostsAPITestCase(TestCase):
             "id": 12,
             "content": "post12",
             "owner": "AAA",
-            "num_likes": 0
+            "num_likes": 0,
+            "liked": False,
         })
 
         # Ensure that the post is correctly created in the database

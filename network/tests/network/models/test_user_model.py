@@ -61,11 +61,13 @@ class UserTestCase(TestCase):
 
     def test_serialize(self):
         user1 = User.objects.get(username = "AAA")
-        self.assertEqual(user1.serialize(), {
+        user2 = User.objects.get(username = "BBB")
+        self.assertEqual(user1.serialize(user2), {
             "id": 1,
             "username": "AAA",
             "num_posts": 0,
             "num_followers": 2,
             "num_following": 0,
+            "followed": True,
             "date_joined": self.datetime.strftime("%B %Y"),
         })

@@ -51,6 +51,7 @@ class ProfileAPITestCase(TestCase):
             "num_posts": 2,
             "num_followers": 2,
             "num_following": 1,
+            "followed": False,
             "date_joined": self.datetime.strftime("%B %Y"),
             "posts": [
                 {
@@ -58,6 +59,7 @@ class ProfileAPITestCase(TestCase):
                     "content": "post2",
                     "owner": "AAA",
                     "num_likes": 0,
+                    "liked": False,
                     "date_posted": (self.datetime + timezone.timedelta(days = 1)).strftime("%b %d %Y, %I:%M %p"),
                 },
                 {
@@ -65,10 +67,32 @@ class ProfileAPITestCase(TestCase):
                     "content": "post1",
                     "owner": "AAA",
                     "num_likes": 0,
+                    "liked": False,
                     "date_posted": self.datetime.strftime("%b %d %Y, %I:%M %p"),                   
                 }
-                ]
+                ],
+            "page_num": 1,
+            "num_pages": 1
         })
+
+    def test_invalid_pages(self):
+        # Send get request to profile with invalid page number
+        response = self.client.get("/api/AAA?page=-1")
+
+        # Ensure that status code is 404
+        self.assertEqual(response.status_code, 404)
+
+        # Ensure that the correct json response is returned
+        self.assertEqual(response.json(), {"error": "Page not found."})
+
+        # Send get request to profile with invalid page number
+        response = self.client.get("/api/AAA?page=2")
+
+        # Ensure that status code is 404
+        self.assertEqual(response.status_code, 404)
+
+        # Ensure that the correct json response is returned
+        self.assertEqual(response.json(), {"error": "Page not found."})
 
     def test_valid_follow(self):
         # Login the user

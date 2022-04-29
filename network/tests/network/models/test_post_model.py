@@ -38,10 +38,12 @@ class PostTestCase(TestCase):
 
     def test_serialize(self):
         post = Post.objects.get(id = 1)
-        self.assertEqual(post.serialize(), {
+        user = User.objects.get(username = "AAA")
+        self.assertEqual(post.serialize(user), {
             "id": 1,
             "content": "post1",
             "owner": "AAA",
             "num_likes": 1,
+            "liked": True,
             "date_posted": self.datetime.strftime("%b %d %Y, %I:%M %p"),
         })                 
