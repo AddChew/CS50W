@@ -5,6 +5,7 @@ const Switch = ReactRouterDOM.Switch
 const NavLink = ReactRouterDOM.NavLink
 const Redirect = ReactRouterDOM.Redirect
 const useParams = ReactRouterDOM.useParams
+const useLocation = ReactRouterDOM.useLocation
 
 
 function getCookie(name) {
@@ -21,6 +22,12 @@ function getCookie(name) {
         }
     }
     return cookieValue
+}
+
+
+function useQuery() {
+    const { search } = useLocation()
+    return React.useMemo(() => new URLSearchParams(search), [search])
 }
 
 
@@ -58,7 +65,7 @@ function Navigation(props) {
     return (
         <div>
             <nav class="navbar navbar-expand-lg navbar-light">
-                <Anchor className="navbar-brand font-weight-bold" url="#" url_name="Network" />
+                <Anchor className="navbar-brand font-weight-bold" url="/" url_name="Network" />
                 <div>
                     <ul class="navbar-nav mr-auto">
                         { logged_in && <List className="nav-link font-weight-bold" url={ `/${username}` } url_name={ username } /> }
@@ -282,22 +289,13 @@ function Post(props) {
 
 
 function Posts(props) {
+    const query = useQuery()
     const [state, setState] = React.useState({error: null, page_num: null, num_pages: null, posts: []})
 
     React.useEffect(() => document.title = `Social Network - ${props.title}`, [props.title])
 
-    function fetchPosts(event) {
-        var input = null
-        if (event !== null) {
-            event.preventDefault()
-            var input = event.target.textContent
-        }
-
-        if (input === null || input === undefined) var page_num = 1
-        else if (input === "Next") var page_num = state.page_num + 1
-        else if (input === "Previous") var page_num = state.page_num - 1
-        else var page_num = input
-
+    function fetchPosts() {
+        const page_num = query.get("page") ? query.get("page") : 1
         fetch(`${props.api_url}?page=${page_num}`)
         .then(response => response.json())
         .then(result => {
@@ -306,7 +304,7 @@ function Posts(props) {
         })
     }
 
-    React.useEffect(() => fetchPosts(null), [props.title])
+    React.useEffect(fetchPosts, [props.title, query.get("page")])
 
     const first_page = state.page_num === 1
     const last_page = state.page_num === state.num_pages
@@ -322,13 +320,13 @@ function Posts(props) {
                 <nav>
                     <ul class="pagination justify-content-center">
                         <li class={ `page-item ${ first_page ? "disabled" : "" }` }>
-                            <a class="page-link" href="#" onClick={ fetchPosts }>Previous</a>
+                            <Anchor className="page-link" url={ `?page=${state.page_num - 1}` } url_name="Previous" />
                         </li>
-                        { !first_page && <li class="page-item"><a class="page-link" href="#" onClick={ fetchPosts }>{ state.page_num - 1 }</a></li> }
-                        <li class="page-item active"><a class="page-link" href="#" onClick={ fetchPosts }>{ state.page_num }</a></li>
-                        { !last_page && <li class="page-item"><a class="page-link" href="#" onClick={ fetchPosts }>{ state.page_num + 1 }</a></li> }
+                        { !first_page && <li class="page-item"><Anchor className="page-link" url={ `?page=${state.page_num - 1}` } url_name={ state.page_num - 1 } /></li> }
+                        <li class="page-item active"><Anchor className="page-link" url={ `?page=${state.page_num}` } url_name={ state.page_num } /></li>
+                        { !last_page && <li class="page-item"><Anchor className="page-link" url={ `?page=${state.page_num + 1}` } url_name={ state.page_num + 1 } /></li> }
                         <li class={ `page-item ${ last_page ? "disabled" : "" }` }>
-                            <a class="page-link" href="#" onClick={ fetchPosts }>Next</a>
+                            <Anchor className="page-link" url={ `?page=${state.page_num + 1}` } url_name="Next" />
                         </li>
                     </ul>
                 </nav>
@@ -340,6 +338,7 @@ function Posts(props) {
 
 
 function Profile(props) {
+    const query = useQuery()
     const username = useParams().username
     const [profile, setProfile] = React.useState({
         error: null, followed: false, id: null, username: null, num_posts: null, 
@@ -349,23 +348,13 @@ function Profile(props) {
 
     React.useEffect(() => document.title = `Social Network - ${profile.error ? profile.error.slice(0, -1) : username}`, [profile.error, profile.username])
 
-    function fetchProfile(event) {
-        var input = null
-        if (event !== null) {
-            event.preventDefault()
-            var input = event.target.textContent
-        }
-
-        if (input === null || input === undefined) var page_num = 1
-        else if (input === "Next") var page_num = profile.page_num + 1
-        else if (input === "Previous") var page_num = profile.page_num - 1
-        else var page_num = input
-
+    function fetchProfile() {
+        const page_num = query.get("page") ? query.get("page") : 1
         fetch(`/api/${username}?page=${page_num}`)
         .then(response => response.json())
         .then(result => {
             if (result.error) setProfile({...profile, error: result.error})
-            else setProfile({...profile, ...result, error: null}) // posts: result.posts.map(post => ({...post}))
+            else setProfile({...profile, ...result, error: null})
         })
     }
 
@@ -386,7 +375,7 @@ function Profile(props) {
         }
     }
 
-    React.useEffect(() => fetchProfile(null), [username])
+    React.useEffect(fetchProfile, [username, query.get("page")])
 
     const first_page = profile.page_num === 1
     const last_page = profile.page_num === profile.num_pages   
@@ -412,13 +401,13 @@ function Profile(props) {
                 <nav>
                     <ul class="pagination justify-content-center">
                         <li class={ `page-item ${ first_page ? "disabled" : "" }` }>
-                            <a class="page-link" href="#" onClick={ fetchProfile }>Previous</a>
+                            <Anchor className="page-link" url={ `?page=${profile.page_num - 1}` } url_name="Previous" />
                         </li>
-                        { !first_page && <li class="page-item"><a class="page-link" href="#" onClick={ fetchProfile }>{ profile.page_num - 1 }</a></li> }
-                        <li class="page-item active"><a class="page-link" href="#" onClick={ fetchProfile }>{ profile.page_num }</a></li>
-                        { !last_page && <li class="page-item"><a class="page-link" href="#" onClick={ fetchProfile }>{ profile.page_num + 1 }</a></li> }
+                        { !first_page && <li class="page-item"><Anchor className="page-link" url={ `?page=${profile.page_num - 1}` } url_name={ profile.page_num - 1 } /></li> }
+                        <li class="page-item active"><Anchor className="page-link" url={ `?page=${profile.page_num}` } url_name={ profile.page_num } /></li>
+                        { !last_page && <li class="page-item"><Anchor className="page-link" url={ `?page=${profile.page_num + 1}` } url_name={ profile.page_num + 1 } /></li> }
                         <li class={ `page-item ${ last_page ? "disabled" : "" }` }>
-                            <a class="page-link" href="#" onClick={ fetchProfile }>Next</a>
+                            <Anchor className="page-link" url={ `?page=${profile.page_num + 1}` } url_name="Next" />
                         </li>
                     </ul>
                 </nav>
@@ -441,6 +430,7 @@ function App() {
     React.useEffect(fetchCredentials, [])
 
     const logged_in = credentials.logged_in
+    if (logged_in === null) return null
     return (
         <Router>
             <Route path="/" render={() => <Navigation credentials={ credentials } setCredentials={ setCredentials } />}/>

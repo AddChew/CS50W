@@ -5,10 +5,7 @@ from . import views
 
 urlpatterns = [
     path("", views.index, name="index"),
-    # path("login", views.login_view, name="login"),
-    # path("logout", views.logout_view, name="logout"),
-    # path("register", views.register, name="register"),
-
+    
     # API Routes
     path("api/login", views.login_user, name="login"),
     path("api/logout", views.logout_user, name="logout"),
