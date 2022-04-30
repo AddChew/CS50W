@@ -2,7 +2,7 @@
 
 Twitter-like social network website
 
-[Link to Demo]()
+[Link to Demo](https://youtu.be/ZTYznan-3-A)
 
 ## How to run the project
 
