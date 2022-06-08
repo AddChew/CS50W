@@ -265,3 +265,41 @@ class FlightTestCase(TestCase):
 ```
 
 ### Selenium
+
+- Framework that allows us to simulate a user opening a web browser, navigating to our page and interacting with it
+
+```html
+<!-- counter.html -->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Counter</title>
+        <script>
+            
+            // Wait for page to load
+            document.addEventListener('DOMContentLoaded', () => {
+
+                // Initialize variable to 0
+                let counter = 0;
+
+                // If increase button clicked, increase counter and change inner html
+                document.querySelector('#increase').onclick = () => {
+                    counter ++;
+                    document.querySelector('h1').innerHTML = counter;
+                }
+
+                // If decrease button clicked, decrease counter and change inner html
+                document.querySelector('#decrease').onclick = () => {
+                    counter --;
+                    document.querySelector('h1').innerHTML = counter;
+                }
+            })
+        </script>
+    </head>
+    <body>
+        <h1>0</h1>
+        <button id="increase">+</button>
+        <button id="decrease">-</button>
+    </body>
+</html>
+```
