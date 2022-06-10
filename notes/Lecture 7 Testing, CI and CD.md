@@ -381,3 +381,13 @@ if __name__ == "__main__":
 ```
 
 ### CI/CD
+
+- Stands for Continuous Integration and Continuous Delivery
+- Continuous Integration
+    - Frequent merges to the main branch
+    - Automated unit testing with each merge
+
+- Continuous Delivery
+    - Short release schedules; new versions of an application are released frequently
+
+### Github Actions
