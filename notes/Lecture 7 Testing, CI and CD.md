@@ -303,3 +303,81 @@ class FlightTestCase(TestCase):
     </body>
 </html>
 ```
+
+- Run the command ```pip install selenium chromedriver-py``` to install the required libraries
+
+```python
+# tests.py
+
+import os
+import pathlib
+import unittest
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from chromedriver_py import binary_path
+
+# Finds the Uniform Resourse Identifier of a file
+def file_uri(filename):
+    return pathlib.Path(os.path.abspath(filename)).as_uri()
+
+# Sets up web driver using Google chrome
+service_object = Service(binary_path)
+driver = webdriver.Chrome(service=service_object)
+
+# Standard outline of testing class
+class WebpageTests(unittest.TestCase):
+
+    def test_title(self):
+        """Make sure title is correct"""
+        # Find the URI of our file
+        uri = file_uri("counter.html")
+
+        # Use the URI to open the web page
+        driver.get(uri)
+
+        # Access the title of the current page
+        title = driver.title
+
+        # driver.page_source allows us to access the source code of the page
+
+        self.assertEqual(title, "Counter")
+
+    def test_increase(self):
+        """Make sure header updated to 1 after 1 click of increase button"""
+        driver.get(file_uri("counter.html"))
+
+        # Find and store increase button
+        increase = driver.find_element(By.ID, "increase")
+
+        # Simulate the user clicking on increase button
+        increase.click()
+        self.assertEqual(driver.find_element(By.TAG_NAME, "h1").text, "1")
+
+    def test_decrease(self):
+        """Make sure header updated to -1 after 1 click of decrease button"""
+        driver.get(file_uri("counter.html"))
+
+        # Find and store decrease button
+        decrease = driver.find_element(By.ID,"decrease")
+
+        # Simulate the user clicking on decrease button
+        decrease.click()
+        self.assertEqual(driver.find_element(By.TAG_NAME, "h1").text, "-1")
+
+    def test_multiple_increase(self):
+        """Make sure header updated to 3 after 3 clicks of increase button"""
+        driver.get(file_uri("counter.html"))
+        increase = driver.find_element_by_id("increase")
+
+        # We can even include clicks within other Python constructs
+        for i in range(3):
+            increase.click()
+        self.assertEqual(driver.find_element(By.TAG_NAME, "h1").text, "3")
+
+if __name__ == "__main__":
+    unittest.main()
+```
+
+### CI/CD
