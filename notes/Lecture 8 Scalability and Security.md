@@ -1,1 +1,1 @@
-# Lecture 7: Scalability and Security
+# Lecture 8: Scalability and Security
