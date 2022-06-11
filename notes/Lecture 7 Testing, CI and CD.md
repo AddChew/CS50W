@@ -29,7 +29,7 @@ assert square(10) == 100 # Assertion Error is raised
 from math import sqrt
 
 # buggy function
-def is_prime(n: int):
+def is_prime(n: int) -> bool:
 
     # Numbers < 2 are not prime
     if n < 2:
@@ -47,7 +47,7 @@ def is_prime(n: int):
 
 
 # correct function
-def is_prime(n): int:
+def is_prime(n: int) -> bool:
 
     # Numbers < 2 are not prime
     if n < 2:
@@ -391,3 +391,34 @@ if __name__ == "__main__":
     - Short release schedules; new versions of an application are released frequently
 
 ### Github Actions
+
+- Allows us to create workflows where we can specify certain actions (i.e. unit tests) to be performed every time someone pushes to a git repository
+- <b>YAML</b> file (takes on the form ```filename.yml``` or ```filename.yaml```) is used to set up Gihub Action
+- Refer [here](https://github.com/AddChew/github-actions.git) for a toy repository with github actions set up
+
+#### Steps to set up Github Actions
+1.  Create a ```.github``` directory in your repo
+2.  Create a ```workflows``` directory inside the ```.github``` directory
+3.  Within the ```workflows``` directory, create a ```filename.yml``` file
+
+```yaml
+# Sample YML file
+# ci.yml
+
+name: Testing # Name of our workflow
+on: push # Specify when the workflow should run; in our case, we wish to run the workflow each time a push is made to the repo
+
+jobs: # Indicates which jobs should be run at every push
+  test_project: # Name of job that we want to run; can have multiple jobs, but in our case, we only have one. Every job must define two components: runs-on and steps.
+    runs-on: ubuntu-latest # Specify which of Github's virtual machines we would like to run our code on
+    steps: # Specify the actions that should occur when the job is run
+    - uses: actions/checkout@v2 # Specify which Github Action we wish to use
+    - name: Run Django unit tests # Description of the action that we are taking
+      run: | # Commands that we wish to run on Github's server; in our case, we wish to install Django and then run the testing file
+        pip3 install --user django
+        python3 manage.py test
+```
+
+4. Navigate to <b>Actions</b> tab on Github to view the logs of the actions that have taken place after each push
+
+### Docker
