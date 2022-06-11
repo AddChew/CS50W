@@ -422,3 +422,19 @@ jobs: # Indicates which jobs should be run at every push
 4. Navigate to <b>Actions</b> tab on Github to view the logs of the actions that have taken place after each push
 
 ### Docker
+
+- Allows everyone that is working on a project to use the same environment
+- Containerization software which creates an isolated environment within your computer that can be standardized among many collaborators and the server on which your application is run
+- Differs from <b>Virtual Machine</b>:
+    - Virtual machine: effectively an entire virtual computer with its own operating system, meaning it ends up taking a lot of space wherever it is running
+    - Docker: works by setting up a container within an existing computer, therefore taking up less space
+
+#### Steps to set up Docker
+1. Create a <b>Docker File</b> named ```Dockerfile```. Inside this file, we will provide instructions on how to create a <b>Docker Image</b> which describes the libraries and binaries we wish to include in our container
+2. Refer [here](https://github.com/AddChew/docker-testing.git) for a toy repository with docker set up
+
+- For production, SQLite is almost never used as it is not scalable. To set up a separate server for our database, we can simply add another Docker container and run them together using a feature called <b>Docker Compose</b>. This feature allows two different servers to run in separate containers but also be able to communicate with one another. 
+
+#### Steps to set up Docker Compose
+1. Create a YAML file called ```docker-compose.yml```
+2. Refer [here](https://github.com/AddChew/docker-compose.git) for a toy repository with docker compose set up
